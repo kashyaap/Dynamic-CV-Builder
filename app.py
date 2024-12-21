@@ -81,6 +81,7 @@ def generate_resume():
             llama_raw_response_text = response.text
         
         # Use a regex to find the JSON object in the response text
+        print(llama_raw_response_text,"raw reposne from ollama ")
         match = re.search(r'{"points"\s*:\s*\[.*?\]}', llama_raw_response_text, re.DOTALL)
         if not match:
             return jsonify({"error": "No valid JSON found in response"}), 500
