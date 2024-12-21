@@ -36,9 +36,6 @@ def generate_resume():
         points = json.loads(points_data)
     except json.JSONDecodeError:
         points = {}
-    
-    print(jd, "jd here")
-    print(points, "points here")
 
     if not jd:
         return jsonify({"error": "Job description is required"}), 400
@@ -46,18 +43,6 @@ def generate_resume():
     if not points:
         print("or is it here:?")
         return jsonify({"error": "Points data is required"}), 400
-    # data = request.json
-    # jd = data.get('jd', '')
-    # points = data.get('points', {})
-    # print(jd, "jd here")
-    # print(points, "points here")
-
-    # if not jd:
-    #     return jsonify({"error": "Job description is required"}), 400
-
-    # if not points:
-    #     print("or is it here:?")
-    #     return jsonify({"error": "Points data is required"}), 400
 
 
     # Construct the prompt for the LLaMA model
@@ -91,11 +76,9 @@ def generate_resume():
             # Use response.json() to convert response to a dictionary (if it's JSON)
             response_json = response.json()  # Parse JSON directly from response
             llama_raw_response_text = response_json.get('response') 
-            print(llama_raw_response_text) # Get 'response' key
         except ValueError:
             # If response.json() fails, fall back to response.text (raw string)
             llama_raw_response_text = response.text
-            print(llama_raw_response_text)
         
         # Use a regex to find the JSON object in the response text
         match = re.search(r'{"points"\s*:\s*\[.*?\]}', llama_raw_response_text, re.DOTALL)
@@ -110,7 +93,6 @@ def generate_resume():
         except json.JSONDecodeError as e:
             return jsonify({"error": f"JSON parsing failed: {str(e)}"}), 500
         
-        print("______________________-were we able to extract the points", points_extracted)
         # Now validate against the schema
         validate(instance=points_extracted, schema=LLAMA_RESPONSE_SCHEMA)
 
@@ -122,7 +104,6 @@ def generate_resume():
             for idx, point in enumerate(points_extracted["points"], start=1):
                 placeholder = f"%POINT_{idx}%"  # Construct placeholder dynamically
                 latex_content = latex_content.replace(placeholder, point)
-                print(latex_content, "latex_content")
 
         with open(OUTPUT_LATEX_FILE, 'w') as file:
             file.write(latex_content)
